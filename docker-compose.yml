@@ -1,0 +1,90 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: moodflow_db
+    environment:
+      POSTGRES_DB: moodflow
+      POSTGRES_USER: moodflow_user
+      POSTGRES_PASSWORD: moodflow_pass
+    ports:
+      - "54320:5432"
+    volumes:
+      - moodflow_postgres_data:/var/lib/postgresql/data
+    networks:
+      - moodflow_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U moodflow_user -d moodflow"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: moodflow_redis
+    ports:
+      - "63790:6379"
+    volumes:
+      - moodflow_redis_data:/data
+    networks:
+      - moodflow_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: moodflow_api
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://moodflow_user:moodflow_pass@db:5432/moodflow
+      REDIS_URL: redis://redis:6379
+    ports:
+      - "64000:8000"
+    volumes:
+      - ./backend:/app
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - moodflow_network
+    restart: unless-stopped
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  celery-worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: moodflow_celery_worker
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://moodflow_user:moodflow_pass@db:5432/moodflow
+      REDIS_URL: redis://redis:6379
+    volumes:
+      - ./backend:/app
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - moodflow_network
+    restart: unless-stopped
+    command: celery -A app.tasks worker --loglevel=info --concurrency=2
+
+volumes:
+  moodflow_postgres_data:
+  moodflow_redis_data:
+
+networks:
+  moodflow_network:
+    driver: bridge

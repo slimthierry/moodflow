@@ -1,0 +1,18 @@
+{
+  "name": "@moodflow/utils",
+  "version": "0.1.0",
+  "description": "Shared utilities for MoodFlow",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@moodflow/types": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.0"
+  }
+}
