@@ -6,7 +6,7 @@ from sqlalchemy import select, func, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.core.exceptions import NotFoundException
+from app.auth.exceptions import NotFoundException
 from app.models.mood_models import MoodEntry, MoodTag
 from app.schemas.mood_schemas import MoodEntryCreate, MoodEntryUpdate
 

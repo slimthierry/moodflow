@@ -4,7 +4,7 @@ from uuid import UUID
 from sqlalchemy import select, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.exceptions import NotFoundException
+from app.auth.exceptions import NotFoundException
 from app.models.journal_models import JournalEntry
 from app.schemas.journal_schemas import JournalEntryCreate, JournalEntryUpdate
 from app.utils.sentiment import analyze_sentiment

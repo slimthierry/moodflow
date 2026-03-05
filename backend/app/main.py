@@ -3,18 +3,15 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.v1 import router as api_router
+from app.loggers import setup_logging
+from app.routes import app_router
 from app.config.settings import settings
-from app.core.exceptions import register_exception_handlers
-
-
+from app.auth.exceptions import register_exception_handlers
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
     yield
     # Shutdown
-
-
 app = FastAPI(
     title="MoodFlow API",
     description="Mood and Mental Well-being Tracking - Backend API",
@@ -36,8 +33,6 @@ register_exception_handlers(app)
 
 # Routes
 app.include_router(api_router)
-
-
 @app.get("/")
 async def root():
     return {
@@ -45,8 +40,6 @@ async def root():
         "version": "0.1.0",
         "status": "running",
     }
-
-
 @app.get("/health")
 async def health_check():
     return {"status": "healthy"}

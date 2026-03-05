@@ -1,8 +1,8 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.exceptions import BadRequestException, ConflictException, UnauthorizedException
-from app.core.security import (
+from app.auth.exceptions import BadRequestException, ConflictException, UnauthorizedException
+from app.auth.security import (
     create_access_token,
     create_refresh_token,
     decode_token,
